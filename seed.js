@@ -91,6 +91,24 @@ function buildReview(i, autor, resenado, materia, periodo) {
     };
 }
 
+function buildMateria(nombre, periodos) {
+    return {
+        nombre: nombre,
+        periodos: periodos,
+    };
+}
+
+async function seedMaterias() {
+    const batch = db.batch();
+
+    for (const materia of MATERIAS) {
+        const materiaRef = db.collection('materias').doc();
+        batch.set(materiaRef, buildMateria(materia, PERIODOS));
+    }
+
+    await batch.commit();
+}
+
 async function seedUsers(cantidad = 50) {
     const batch = db.batch();
     const users = [];
@@ -154,6 +172,7 @@ async function seedReviews(inscripciones, reviewsPorMateria = 3) {
 
 async function main() {
     try {
+        await seedMaterias();
         const users = await seedUsers(5);
         const inscripciones = await seedInscripciones(users);
         await seedReviews(inscripciones, 2);
